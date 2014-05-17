@@ -1,6 +1,13 @@
 from matplotlib import pyplot as pp
 import numpy as np
 import random
+import itertools
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return itertools.izip(a, b)
 
 def randomSize():
 	return random.randint(1,10)
@@ -36,9 +43,6 @@ class Memory(object):
 	def getSize(self):
 		return self.size
 
-	def checkHole(self, i, p):
-		return p.getSize() <= self.contents[i+1].getPosition() - (self.contents[i].getPosition() + self.contents[i].getSize())
-
 	def addProgram(self, p):
 		n = self.numPrograms()
 		tmp = 0
@@ -58,16 +62,15 @@ class Memory(object):
 				self.contents.append(p)
 				tmp = 1
 			if tmp == 0:
-				for i in range(n-2):
-					if self.checkHole(i,p):
+				for pairs in pairwise(self.contents):
+					if p.getSize() <= pairs[1].getPosition() - (pairs[0].getPosition() + pairs[0].getSize()):
 						self.contents.append(p)
-						p.position = self.contents[i].getPosition() + self.contents[i].getSize()
-						tmp = 1
+						p.position = pairs[0].getPosition() + pairs[0].getSize()
 						break
-			if tmp == 0:
-				if p.getSize() <= self.getSize() - (self.contents[n-1].getPosition() + self.contents[n-1].getSize()):
-					self.contents.append(p)
-					p.position = self.contents[n-1].getPosition() + self.contents[n-1].getSize()
+				else:
+					if p.getSize() <= self.getSize() - (self.contents[n-1].getPosition() + self.contents[n-1].getSize()):
+						self.contents.append(p)
+						p.position = self.contents[n-1].getPosition() + self.contents[n-1].getSize()
 
 	def sort(self):
 		self.contents = sorted(self.getContents(), key=lambda p: p.getPosition())
@@ -90,9 +93,9 @@ def simulate(memSize, numTimeSteps):
 		tmp += p.getSize()
 	print float(tmp)/memSize
 	memArray = []
-	for i in xrange(len(m.getContents())-1):
-		memArray.extend([1 for j in range(m.getContents()[i].getSize())])
-		memArray.extend([0 for j in range(m.getContents()[i+1].getPosition()-(m.contents[i].getPosition() + m.contents[i].getSize()))])
+	for p in pairwise(m.getContents()):
+		memArray.extend([1 for j in range(p[0].getSize())])
+		memArray.extend([0 for j in range(p[1].getPosition()-(p[0].getPosition() + p[0].getSize()))])
 	memArray.extend([1 for j in range(m.getContents()[m.numPrograms()-1].getSize())])
 	memArray.extend([0 for j in range(100- len(memArray))])
 	x = [i for i in range(100)]
