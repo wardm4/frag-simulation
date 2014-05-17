@@ -9,6 +9,10 @@ def pairwise(iterable):
     next(b, None)
     return itertools.izip(a, b)
 
+def holeSize(a,b):
+	"for readability: finds the size of the hole in memory between two points"
+	return b-a
+
 def randomSize():
 	return random.randint(1,10)
 
@@ -30,6 +34,9 @@ class Program(object):
 
 	def decrement(self):
 		self.time -= 1
+	def rightEndPoint(self):
+		return self.position + self.size
+
 
 class Memory(object):
 	def __init__(self, size):
@@ -63,14 +70,15 @@ class Memory(object):
 				tmp = 1
 			if tmp == 0:
 				for pairs in pairwise(self.contents):
-					if p.getSize() <= pairs[1].getPosition() - (pairs[0].getPosition() + pairs[0].getSize()):
+					if p.getSize() <= holeSize(pairs[0].rightEndPoint(), pairs[1].getPosition()):
 						self.contents.append(p)
-						p.position = pairs[0].getPosition() + pairs[0].getSize()
+						p.position = pairs[0].rightEndPoint()
 						break
 				else:
-					if p.getSize() <= self.getSize() - (self.contents[n-1].getPosition() + self.contents[n-1].getSize()):
+					"checks last hole"
+					if p.getSize() <= holeSize(self.contents[n-1].rightEndPoint(), self.getSize()):
 						self.contents.append(p)
-						p.position = self.contents[n-1].getPosition() + self.contents[n-1].getSize()
+						p.position = self.contents[n-1].rightEndPoint()
 
 	def sort(self):
 		self.contents = sorted(self.getContents(), key=lambda p: p.getPosition())
@@ -94,17 +102,17 @@ def simulate(memSize, numTimeSteps):
 	print float(tmp)/memSize
 	memArray = []
 	for p in pairwise(m.getContents()):
-		memArray.extend([1 for j in range(p[0].getSize())])
-		memArray.extend([0 for j in range(p[1].getPosition()-(p[0].getPosition() + p[0].getSize()))])
-	memArray.extend([1 for j in range(m.getContents()[m.numPrograms()-1].getSize())])
-	memArray.extend([0 for j in range(100- len(memArray))])
-	x = [i for i in range(100)]
-	ymin = [0 for i in range(100)]
+		memArray.extend([1 for j in xrange(p[0].getSize())])
+		memArray.extend([0 for j in xrange(holeSize(p[0].rightEndPoint(), p[1].getPosition()))])
+	memArray.extend([1 for j in xrange(m.getContents()[m.numPrograms()-1].getSize())])
+	memArray.extend([0 for j in xrange(memSize - len(memArray))])
+	x = [i for i in xrange(memSize)]
+	ymin = [0 for i in xrange(memSize)]
 	a = np.array(memArray)
 	pp.vlines(x, ymin, a)
 	pp.ylim(0,1)
 	pp.show()
 	
 
-simulate(100, 100)
+simulate(1000, 1000)
 
