@@ -7,12 +7,12 @@ am="$GIT_AUTHOR_EMAIL"
 cn="$GIT_COMMITTER_NAME"
 cm="$GIT_COMMITTER_EMAIL"
  
-if [ "$GIT_COMMITTER_EMAIL" = "matt@crunchbang" ]
+if [ "$GIT_COMMITTER_EMAIL" = "matt@crunchbang.(none)" ]
 then
     cn="matt"
     cm="NSquarticsurface@gmail.com"
 fi
-if [ "$GIT_AUTHOR_EMAIL" = "matt@crunchbang" ]
+if [ "$GIT_AUTHOR_EMAIL" = "matt@crunchbang.(none)" ]
 then
     an="matt"
     am="NSquarticsurface@gmail.com"
