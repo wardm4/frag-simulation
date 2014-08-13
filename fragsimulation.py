@@ -114,5 +114,5 @@ def simulate(memSize, numTimeSteps):
 	pp.show()
 	
 
-simulate(1000, 1000)
+simulate(300, 1000)
 
